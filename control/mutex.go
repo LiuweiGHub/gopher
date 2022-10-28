@@ -1,5 +1,11 @@
 package main
 
+import (
+	"log"
+	"sync"
+	"time"
+)
+
 /**
 互斥锁：并发编程对共享资源控制的主要手段
 
@@ -35,6 +41,40 @@ starving：如果有很多协程阻塞等待， 释放锁的协程肯定会释�
 如果超过1ms 则会将该mutex标记为饥饿模式，此时不会启动自旋过程，那一定会有协程被唤醒 （有协程切换）并成功获取锁。
 */
 
+type foo struct {
+	n int
+	sync.Mutex
+}
+
 func main() {
+
+	f := foo{n: 17}
+	go func(f foo) {
+		for {
+			log.Println("g2: try to lock foo ...")
+			f.Lock()
+			log.Println("g2: lock foo ok")
+			f.Unlock()
+			log.Println("g2: Unlock foo ok")
+		}
+	}(f)
+
+	f.Lock()
+	log.Println("g1: lock foo ok")
+
+	go func(f foo) {
+		for {
+			log.Println("g3：try to lock foo...")
+			f.Lock()
+			log.Println("g3: lock foo ok")
+			time.Sleep(5 * time.Second)
+			f.Unlock()
+			log.Println("g3: unlock foo ok")
+		}
+	}(f) // 复制了一个已经locked的锁
+
+	time.Sleep(1000 * time.Second)
+	f.Unlock()
+	log.Println("g1: unlock foo ok")
 
 }

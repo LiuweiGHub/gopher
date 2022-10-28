@@ -1,5 +1,11 @@
 package main
 
+import (
+	"fmt"
+	"math"
+	"sort"
+)
+
 /**
 给你一个字符串 s ，每一次操作你都可以在字符串的任意位置插入任意字符。
 
@@ -45,5 +51,93 @@ s 中所有字符都是小写字母。
 */
 
 func main() {
-	//s :=
+	//[[5,4],[6,4],[6,7],[2,3]]
+	s := [][]int{{5, 4}, {6, 4}, {6, 7}, {2, 3}}
+	res := maxEnvelopes(s)
+	fmt.Println(res)
+
+	fmt.Println(int(^int32(^uint32(0) >> 1)))
+}
+
+func bbc(nums []int) int {
+
+	dp := make([]int, len(nums))
+
+	for i, _ := range nums {
+		dp[i] = 1
+	}
+
+	for i := 0; i < len(nums); i++ {
+		for j := 0; j < i; j++ {
+			if nums[i] > nums[j] {
+				dp[i] = int(math.Max(float64(dp[i]), float64(dp[j])+1))
+			}
+		}
+	}
+
+	res := 0
+
+	for i := 0; i < len(dp); i++ {
+		res = int(math.Max(float64(res), float64(dp[i])))
+	}
+
+	return res
+
+}
+
+func maxEnvelopes(envelopes [][]int) int {
+
+	//送分
+	n := len(envelopes)
+	if n == 0 {
+		return 0
+	}
+
+	//按宽度排序，从小到大
+	//如果宽度一直，则按高度从大到小排
+	//slice 切片排序 。 语法不熟练
+	sort.Slice(envelopes, func(i, j int) bool {
+		a, b := envelopes[i], envelopes[j]
+		return a[0] < b[0] || a[0] == b[0] && a[1] > b[1]
+	})
+	fmt.Println(envelopes)
+
+	//然后，求高度中的最长递增子序列(LIS问题)
+	f := make([]int, n)
+	for i, _ := range f {
+		f[i] = 1
+	}
+
+	for i := 1; i < n; i++ {
+		for j := 0; j < i; j++ {
+			if envelopes[j][1] < envelopes[i][1] {
+				f[i] = max(f[i], f[j]+1)
+			}
+		}
+	}
+	return max(f...)
+}
+
+func max(a ...int) int {
+	fmt.Println(a)
+	res := a[0]
+	for _, v := range a[1:] {
+		if v > res {
+			res = v
+		}
+	}
+	return res
+}
+
+func maxSubArray(nums []int) int {
+	max := nums[0]
+	for i := 1; i < len(nums); i++ {
+		if nums[i]+nums[i-1] > nums[i] {
+			nums[i] += nums[i-1]
+		}
+		if nums[i] > max {
+			max = nums[i]
+		}
+	}
+	return max
 }

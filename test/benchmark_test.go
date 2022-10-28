@@ -1,7 +1,6 @@
-package test_test
+package test
 
 import (
-	"gopher/test"
 	"testing"
 )
 
@@ -10,12 +9,12 @@ import (
 */
 func BenchmarkMakeSliceWithAlloc(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		test.MakeSliceWithAlloc()
+		MakeSliceWithAlloc()
 	}
 }
 
 func BenchmarkMakeSliceWithoutAlloc(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		test.MakeSliceWithoutAlloc()
+		MakeSliceWithoutAlloc()
 	}
 }
